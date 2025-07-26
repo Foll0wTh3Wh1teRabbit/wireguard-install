@@ -444,16 +444,14 @@ function listClientsByPattern() {
 		exit 1
 	fi
 
-	echo $1
-
-	NUMBER_OF_CLIENTS=$(grep -c -E "^### Client" "/etc/wireguard/${SERVER_WG_NIC}.conf" | grep $1)
+	NUMBER_OF_CLIENTS=$(grep -E "^### Client" "/etc/wireguard/${SERVER_WG_NIC}.conf" | grep -c "$1")
 	if [[ ${NUMBER_OF_CLIENTS} -eq 0 ]]; then
 		echo ""
 		echo "You have no existing clients by this pattern!"
 		exit 1
 	fi
 
-	grep -E "^### Client" "/etc/wireguard/${SERVER_WG_NIC}.conf" | grep $1 | cut -d ' ' -f 3 | nl -s ') '
+	grep -E "^### Client" "/etc/wireguard/${SERVER_WG_NIC}.conf" | grep -E "$1" | cut -d ' ' -f 3 | nl -s ') '
 }
 
 function revokeClient() {
