@@ -438,7 +438,7 @@ function listClients() {
 }
 
 function listClientsByPattern() {
-	if [[$# -ne 1]]; then
+	if [[ $# -ne 1 ]]; then
 		echo ""
 		echo "You must specify only the pattern to find"
 		exit 1
