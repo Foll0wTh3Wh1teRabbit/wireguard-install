@@ -571,10 +571,7 @@ function manageMenu() {
 	echo "   4) Revoke existing user"
 	echo "   5) Uninstall WireGuard"
 	echo "   6) Exit"
-	until [[ ${MENU_OPTION} =~ ^[1-5]$ ]]; do
-		read -rp "Select an option [1-5]: " MENU_OPTION
-	done
-	case "${MENU_OPTION}" in
+	case "$0" in
 	1)
 		newClient
 		;;
@@ -602,7 +599,7 @@ initialCheck
 # Check if WireGuard is already installed and load params
 if [[ -e /etc/wireguard/params ]]; then
 	source /etc/wireguard/params
-	manageMenu
+	manageMenu $0
 else
 	installWireGuard
 fi
