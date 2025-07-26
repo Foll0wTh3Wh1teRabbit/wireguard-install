@@ -335,18 +335,14 @@ function newClient() {
 	echo ""
 	echo "Client configuration"
 	echo ""
-	echo "The client name must consist of alphanumeric character(s). It may also include underscores or dashes and can't exceed 15 chars."
+	echo "The client name must consist of alphanumeric character(s). It may also include underscores or dashes and can't exceed 64 chars."
 
-	until [[ ${CLIENT_NAME} =~ ^[a-zA-Z0-9_-]+$ && ${CLIENT_EXISTS} == '0' && ${#CLIENT_NAME} -lt 16 ]]; do
-		read -rp "Client name: " -e CLIENT_NAME
-		CLIENT_EXISTS=$(grep -c -E "^### Client ${CLIENT_NAME}\$" "/etc/wireguard/${SERVER_WG_NIC}.conf")
-
-		if [[ ${CLIENT_EXISTS} != 0 ]]; then
-			echo ""
-			echo -e "${ORANGE}A client with the specified name was already created, please choose another name.${NC}"
-			echo ""
-		fi
-	done
+	CLIENT_EXISTS=$(grep -c -E "^### Client ${$0}\$" "/etc/wireguard/${SERVER_WG_NIC}.conf")
+	if [[ ${CLIENT_EXISTS} != 0 ]]; then
+		echo ""
+		echo -e "${ORANGE}A client with the specified name was already created, please choose another name.${NC}"
+		echo ""
+	fi
 
 	for DOT_IP in {2..254}; do
 		DOT_EXISTS=$(grep -c "${SERVER_WG_IPV4::-1}${DOT_IP}" "/etc/wireguard/${SERVER_WG_NIC}.conf")
@@ -409,7 +405,7 @@ DNS = ${CLIENT_DNS_1},${CLIENT_DNS_2}
 PublicKey = ${SERVER_PUB_KEY}
 PresharedKey = ${CLIENT_PRE_SHARED_KEY}
 Endpoint = ${ENDPOINT}
-AllowedIPs = ${ALLOWED_IPS}" >"${HOME_DIR}/${SERVER_WG_NIC}-client-${CLIENT_NAME}.conf"
+AllowedIPs = ${ALLOWED_IPS}" >"${HOME_DIR}/${CLIENT_NAME}.conf"
 
 	# Add the client as a peer to the server
 	echo -e "\n### Client ${CLIENT_NAME}
@@ -423,11 +419,11 @@ AllowedIPs = ${CLIENT_WG_IPV4}/32,${CLIENT_WG_IPV6}/128" >>"/etc/wireguard/${SER
 	# Generate QR code if qrencode is installed
 	if command -v qrencode &>/dev/null; then
 		echo -e "${GREEN}\nHere is your client config file as a QR Code:\n${NC}"
-		qrencode -t ansiutf8 -l L <"${HOME_DIR}/${SERVER_WG_NIC}-client-${CLIENT_NAME}.conf"
+		qrencode -t ansiutf8 -l L <"${HOME_DIR}/${CLIENT_NAME}.conf"
 		echo ""
 	fi
 
-	echo -e "${GREEN}Your client config file is in ${HOME_DIR}/${SERVER_WG_NIC}-client-${CLIENT_NAME}.conf${NC}"
+	echo -e "${GREEN}Your client config file is in ${HOME_DIR}/${CLIENT_NAME}.conf${NC}"
 }
 
 function listClients() {
@@ -439,6 +435,23 @@ function listClients() {
 	fi
 
 	grep -E "^### Client" "/etc/wireguard/${SERVER_WG_NIC}.conf" | cut -d ' ' -f 3 | nl -s ') '
+}
+
+function listClientsByPattern() {
+	if [[$# != 1]]; then
+		echo ""
+		echo "You must specify only the pattern to find"
+		exit 1
+	fi
+
+	NUMBER_OF_CLIENTS=$(grep -c -E "^### Client" "/etc/wireguard/${SERVER_WG_NIC}.conf" | grep $1)
+	if [[ ${NUMBER_OF_CLIENTS} -eq 0 ]]; then
+		echo ""
+		echo "You have no existing clients by this pattern!"
+		exit 1
+	fi
+
+	grep -E "^### Client" "/etc/wireguard/${SERVER_WG_NIC}.conf" | grep $0 | cut -d ' ' -f 3 | nl -s ') '
 }
 
 function revokeClient() {
@@ -468,7 +481,7 @@ function revokeClient() {
 
 	# remove generated client file
 	HOME_DIR=$(getHomeDirForClient "${CLIENT_NAME}")
-	rm -f "${HOME_DIR}/${SERVER_WG_NIC}-client-${CLIENT_NAME}.conf"
+	rm -f "${HOME_DIR}/${CLIENT_NAME}.conf"
 
 	# restart wireguard to apply changes
 	wg syncconf "${SERVER_WG_NIC}" <(wg-quick strip "${SERVER_WG_NIC}")
@@ -554,9 +567,10 @@ function manageMenu() {
 	echo "What do you want to do?"
 	echo "   1) Add a new user"
 	echo "   2) List all users"
-	echo "   3) Revoke existing user"
-	echo "   4) Uninstall WireGuard"
-	echo "   5) Exit"
+	echo "   3) List all users by pattern"
+	echo "   4) Revoke existing user"
+	echo "   5) Uninstall WireGuard"
+	echo "   6) Exit"
 	until [[ ${MENU_OPTION} =~ ^[1-5]$ ]]; do
 		read -rp "Select an option [1-5]: " MENU_OPTION
 	done
@@ -568,12 +582,15 @@ function manageMenu() {
 		listClients
 		;;
 	3)
-		revokeClient
+		listClientsByPattern
 		;;
 	4)
-		uninstallWg
+		revokeClient
 		;;
 	5)
+		uninstallWg
+		;;
+	6)
 		exit 0
 		;;
 	esac
