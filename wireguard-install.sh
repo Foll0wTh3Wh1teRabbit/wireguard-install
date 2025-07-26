@@ -451,7 +451,7 @@ function listClientsByPattern() {
 		exit 1
 	fi
 
-	grep -E "^### Client" "/etc/wireguard/${SERVER_WG_NIC}.conf" | grep $0 | cut -d ' ' -f 3 | nl -s ') '
+	grep -E "^### Client" "/etc/wireguard/${SERVER_WG_NIC}.conf" | grep $1 | cut -d ' ' -f 3 | nl -s ') '
 }
 
 function revokeClient() {
