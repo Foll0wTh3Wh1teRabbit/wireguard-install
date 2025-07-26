@@ -369,7 +369,7 @@ function newClient() {
 	CLIENT_PUB_KEY=$(echo "${CLIENT_PRIV_KEY}" | wg pubkey)
 	CLIENT_PRE_SHARED_KEY=$(wg genpsk)
 
-	HOME_DIR=$(getHomeDirForClient "${CLIENT_NAME}")
+	HOME_DIR=$(getHomeDirForClient "$1")
 
 	# Create client file and add the server as a peer
 	echo "[Interface]
@@ -386,10 +386,10 @@ DNS = ${CLIENT_DNS_1},${CLIENT_DNS_2}
 PublicKey = ${SERVER_PUB_KEY}
 PresharedKey = ${CLIENT_PRE_SHARED_KEY}
 Endpoint = ${ENDPOINT}
-AllowedIPs = ${ALLOWED_IPS}" >"${HOME_DIR}/${CLIENT_NAME}.conf"
+AllowedIPs = ${ALLOWED_IPS}" >"${HOME_DIR}/$1.conf"
 
 	# Add the client as a peer to the server
-	echo -e "\n### Client ${CLIENT_NAME}
+	echo -e "\n### Client $1
 [Peer]
 PublicKey = ${CLIENT_PUB_KEY}
 PresharedKey = ${CLIENT_PRE_SHARED_KEY}
@@ -400,11 +400,11 @@ AllowedIPs = ${CLIENT_WG_IPV4}/32,${CLIENT_WG_IPV6}/128" >>"/etc/wireguard/${SER
 	# Generate QR code if qrencode is installed
 	if command -v qrencode &>/dev/null; then
 		echo -e "${GREEN}\nHere is your client config file as a QR Code:\n${NC}"
-		qrencode -t ansiutf8 -l L <"${HOME_DIR}/${CLIENT_NAME}.conf"
+		qrencode -t ansiutf8 -l L <"${HOME_DIR}/$1.conf"
 		echo ""
 	fi
 
-	echo -e "${GREEN}Your client config file is in ${HOME_DIR}/${CLIENT_NAME}.conf${NC}"
+	echo -e "${GREEN}Your client config file is in ${HOME_DIR}/$1.conf${NC}"
 }
 
 function listClients() {
