@@ -559,18 +559,18 @@ function uninstallWg() {
 }
 
 function manageMenu() {
-	case $0 in
+	case "$1" in
 	1)
-		newClient
+		newClient $2
 		;;
 	2)
-		listClients
+		listClients 
 		;;
 	3)
-		listClientsByPattern
+		listClientsByPattern $2
 		;;
 	4)
-		revokeClient
+		revokeClient $2
 		;;
 	5)
 		uninstallWg
@@ -587,7 +587,7 @@ initialCheck
 # Check if WireGuard is already installed and load params
 if [[ -e /etc/wireguard/params ]]; then
 	source /etc/wireguard/params
-	manageMenu $0
+	manageMenu $1 $2
 else
 	installWireGuard
 fi
