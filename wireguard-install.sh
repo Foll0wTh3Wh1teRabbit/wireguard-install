@@ -559,19 +559,7 @@ function uninstallWg() {
 }
 
 function manageMenu() {
-	echo "Welcome to WireGuard-install!"
-	echo "The git repository is available at: https://github.com/angristan/wireguard-install"
-	echo ""
-	echo "It looks like WireGuard is already installed."
-	echo ""
-	echo "What do you want to do?"
-	echo "   1) Add a new user"
-	echo "   2) List all users"
-	echo "   3) List all users by pattern"
-	echo "   4) Revoke existing user"
-	echo "   5) Uninstall WireGuard"
-	echo "   6) Exit"
-	case "$0" in
+	case $0 in
 	1)
 		newClient
 		;;
