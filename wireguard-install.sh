@@ -444,6 +444,8 @@ function listClientsByPattern() {
 		exit 1
 	fi
 
+	echo $1
+
 	NUMBER_OF_CLIENTS=$(grep -c -E "^### Client" "/etc/wireguard/${SERVER_WG_NIC}.conf" | grep $1)
 	if [[ ${NUMBER_OF_CLIENTS} -eq 0 ]]; then
 		echo ""
