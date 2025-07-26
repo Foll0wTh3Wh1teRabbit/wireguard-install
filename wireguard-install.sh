@@ -335,9 +335,9 @@ function newClient() {
 	echo ""
 	echo "Client configuration"
 	echo ""
-	echo "The client name must consist of alphanumeric character(s). It may also include underscores or dashes and can't exceed 64 chars."
+	echo "The client name is $1."
 
-	CLIENT_EXISTS=$(grep -c -E "^### Client ${$0}\$" "/etc/wireguard/${SERVER_WG_NIC}.conf")
+	CLIENT_EXISTS=$(grep -c -E "^### Client $1\$" "/etc/wireguard/${SERVER_WG_NIC}.conf")
 	if [[ ${CLIENT_EXISTS} != 0 ]]; then
 		echo ""
 		echo -e "${ORANGE}A client with the specified name was already created, please choose another name.${NC}"
