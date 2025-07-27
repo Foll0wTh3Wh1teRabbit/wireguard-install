@@ -435,6 +435,14 @@ function listClientsByPattern() {
 	grep -E "^### Client" "/etc/wireguard/${SERVER_WG_NIC}.conf" | grep -E "$1" | cut -d ' ' -f 3 | nl -s ') '
 }
 
+function lockClientsByPattern() {
+  echo "Hello, world!"
+}
+
+function unlockClientsByPattern() {
+  echo "Hello, world!"
+}
+
 function revokeClient() {
 	NUMBER_OF_CLIENTS=$(grep -c -E "^### Client" "/etc/wireguard/${SERVER_WG_NIC}.conf")
 	if [[ ${NUMBER_OF_CLIENTS} == '0' ]]; then
@@ -466,6 +474,10 @@ function revokeClient() {
 
 	# restart wireguard to apply changes
 	wg syncconf "${SERVER_WG_NIC}" <(wg-quick strip "${SERVER_WG_NIC}")
+}
+
+function revokeClientsByPattern() {
+    echo "Hello, world!"
 }
 
 function uninstallWg() {
@@ -550,13 +562,22 @@ function manageMenu() {
 	3)
 		listClientsByPattern $2
 		;;
-	4)
-		revokeClient $2
+  4)
+  	lockClientsByPattern $2
+  	;;
+  5)
+  	unlockClientByPattern $2
+  	;;
+	6)
+		revokeClient
 		;;
-	5)
+  7)
+		revokeClientsByPattern $2
+		;;
+	8)
 		uninstallWg
 		;;
-	6)
+	9)
 		exit 0
 		;;
 	esac
