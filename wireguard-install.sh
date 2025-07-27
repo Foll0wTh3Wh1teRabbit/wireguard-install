@@ -477,6 +477,19 @@ function revokeClient() {
 }
 
 function revokeClientsByPattern() {
+    if [[ $# -ne 1 ]]; then
+    	echo ""
+    	echo "You must specify only the pattern to revoke"
+    	exit 1
+    fi
+
+    NUMBER_OF_CLIENTS=$(grep -E "^### Client" "/etc/wireguard/${SERVER_WG_NIC}.conf" | grep -c "$1")
+    if [[ ${NUMBER_OF_CLIENTS} -eq 0 ]]; then
+    	echo ""
+    	echo "You have no existing clients by this pattern!"
+    	exit 1
+    fi
+
     echo "Hello, world!"
 }
 
