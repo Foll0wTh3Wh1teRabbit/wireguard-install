@@ -492,7 +492,10 @@ function revokeClientsByPattern() {
 
   readarray -t CLIENT_NAMES < <(grep -E "^### Client" "/etc/wireguard/${SERVER_WG_NIC}.conf" | grep "$1")
   for name in "${CLIENT_NAMES[@]}"; do
-    echo "Имя клиента: $name"
+    	sed -i "/^### Client $name\$/,/^$/d" "/etc/wireguard/${SERVER_WG_NIC}.conf"
+
+    	HOME_DIR=$(getHomeDirForClient "$name")
+    	rm -f "${HOME_DIR}/$name.conf"
   done
 
   wg syncconf "${SERVER_WG_NIC}" <(wg-quick strip "${SERVER_WG_NIC}")
