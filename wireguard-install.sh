@@ -490,7 +490,7 @@ function revokeClientsByPattern() {
   	exit 1
   fi
 
-  readarray -t CLIENT_NAMES < <(grep -E "^### Client" "/etc/wireguard/${SERVER_WG_NIC}.conf" | grep -c "$1")
+  readarray -t CLIENT_NAMES < <(grep -E "^### Client" "/etc/wireguard/${SERVER_WG_NIC}.conf" | grep "$1")
   for name in "${CLIENT_NAMES[@]}"; do
     echo "Имя клиента: $name"
   done
