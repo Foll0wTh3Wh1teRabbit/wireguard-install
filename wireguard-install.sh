@@ -436,11 +436,47 @@ function listClientsByPattern() {
 }
 
 function lockClientsByPattern() {
-  echo "Hello, world!"
+  if [[ $# -ne 1 ]]; then
+  	echo ""
+  	echo "You must specify only the pattern to revoke"
+  	exit 1
+  fi
+
+  NUMBER_OF_CLIENTS=$(grep -E "^### Client" "/etc/wireguard/${SERVER_WG_NIC}.conf" | grep -c "$1")
+  if [[ ${NUMBER_OF_CLIENTS} -eq 0 ]]; then
+  	echo ""
+  	echo "You have no existing clients by this pattern!"
+  	exit 1
+  fi
+
+  readarray -t CLIENT_NAMES < <(grep -E "^### Client" "/etc/wireguard/${SERVER_WG_NIC}.conf" | grep "$1" | cut -d ' ' -f 3 )
+  for name in "${CLIENT_NAMES[@]}"; do
+    sed -i "/^### Client ${name}\$/,/^$/s/^\(AllowedIPs\s*=.*\)$/# \1/" "/etc/wireguard/${SERVER_WG_NIC}.conf"
+  done
+
+  wg syncconf "${SERVER_WG_NIC}" <(wg-quick strip "${SERVER_WG_NIC}")
 }
 
 function unlockClientsByPattern() {
-  echo "Hello, world!"
+  if [[ $# -ne 1 ]]; then
+  	echo ""
+  	echo "You must specify only the pattern to revoke"
+  	exit 1
+  fi
+
+  NUMBER_OF_CLIENTS=$(grep -E "^### Client" "/etc/wireguard/${SERVER_WG_NIC}.conf" | grep -c "$1")
+  if [[ ${NUMBER_OF_CLIENTS} -eq 0 ]]; then
+  	echo ""
+  	echo "You have no existing clients by this pattern!"
+  	exit 1
+  fi
+
+  readarray -t CLIENT_NAMES < <(grep -E "^### Client" "/etc/wireguard/${SERVER_WG_NIC}.conf" | grep "$1" | cut -d ' ' -f 3 )
+  for name in "${CLIENT_NAMES[@]}"; do
+    sed -i "/^### Client ${name}\$/,/^$/s/^#\s*\(AllowedIPs\s*=.*\)$/\1/" "/etc/wireguard/${SERVER_WG_NIC}.conf"
+  done
+
+  wg syncconf "${SERVER_WG_NIC}" <(wg-quick strip "${SERVER_WG_NIC}")
 }
 
 function revokeClient() {
