@@ -623,7 +623,7 @@ function manageMenu() {
   	lockClientsByPattern $2
   	;;
   5)
-  	unlockClientByPattern $2
+  	unlockClientsByPattern $2
   	;;
 	6)
 		revokeClient
