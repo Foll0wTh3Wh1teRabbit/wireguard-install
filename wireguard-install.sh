@@ -477,20 +477,25 @@ function revokeClient() {
 }
 
 function revokeClientsByPattern() {
-    if [[ $# -ne 1 ]]; then
-    	echo ""
-    	echo "You must specify only the pattern to revoke"
-    	exit 1
-    fi
+  if [[ $# -ne 1 ]]; then
+  	echo ""
+  	echo "You must specify only the pattern to revoke"
+  	exit 1
+  fi
 
-    NUMBER_OF_CLIENTS=$(grep -E "^### Client" "/etc/wireguard/${SERVER_WG_NIC}.conf" | grep -c "$1")
-    if [[ ${NUMBER_OF_CLIENTS} -eq 0 ]]; then
-    	echo ""
-    	echo "You have no existing clients by this pattern!"
-    	exit 1
-    fi
+  NUMBER_OF_CLIENTS=$(grep -E "^### Client" "/etc/wireguard/${SERVER_WG_NIC}.conf" | grep -c "$1")
+  if [[ ${NUMBER_OF_CLIENTS} -eq 0 ]]; then
+  	echo ""
+  	echo "You have no existing clients by this pattern!"
+  	exit 1
+  fi
 
-    echo "Hello, world!"
+  readarray -t CLIENT_NAMES < <(grep -E "^### Client" "/etc/wireguard/${SERVER_WG_NIC}.conf" | grep -c "$1")
+  for name in "${CLIENT_NAMES[@]}"; do
+    echo "Имя клиента: $name"
+  done
+
+  wg syncconf "${SERVER_WG_NIC}" <(wg-quick strip "${SERVER_WG_NIC}")
 }
 
 function uninstallWg() {
